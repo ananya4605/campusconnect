@@ -17,5 +17,10 @@ services:
       - key: JWT_EXPIRES
         value: 7d
       # Comma-separated list of allowed browser origins (server.js:13).
+      # Both Vercel aliases are listed because Vercel rotates the random
+      # suffix when the production alias is reassigned.
       - key: CLIENT_URL
-        value: http://localhost:5173
+        value: >-
+          http://localhost:5173,
+          https://campusconnect-mu-one.vercel.app,
+          https://campusconnect-ananya-3793.vercel.app
