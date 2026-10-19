@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: campusconnect-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # Secrets are never stored here. sync:false makes Render ask for the
+      # value once in the dashboard and keep it out of the repository.
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES
+        value: 7d
+      # Comma-separated list of allowed browser origins (server.js:13).
+      - key: CLIENT_URL
+        value: http://localhost:5173
