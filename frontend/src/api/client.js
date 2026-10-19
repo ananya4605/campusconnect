@@ -1,6 +1,10 @@
 import axios from "axios";
 
-export const api = axios.create({ baseURL: "/api" });
+// Local development leaves VITE_API_URL unset and relies on the Vite proxy.
+// Deployed builds set it to the hosted API, e.g. https://campusconnect-api.onrender.com/api
+const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "/api";
+
+export const api = axios.create({ baseURL: API_BASE });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("cc_token");
