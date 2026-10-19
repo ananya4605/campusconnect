@@ -4,10 +4,11 @@
 
 | | |
 | --- | --- |
-| **Live demo** | _Not yet deployed — link will appear here_ |
+| **Live demo** | https://campusconnect-mu-one.vercel.app |
+| **API** | https://campusconnect-api-rhvm.onrender.com/api/health |
 | **Repository** | https://github.com/ananya4605/campusconnect |
 | **Stack** | React · Vite · Express · MongoDB Atlas · JWT |
-| **Status** | Working MVP — registration, posting, search, filtering, and author-only editing are complete and verified end-to-end |
+| **Status** | Deployed MVP — registration, posting, search, filtering, and author-only editing are complete and verified end-to-end |
 
 ---
 
@@ -23,6 +24,7 @@
 - [API overview](#api-overview)
 - [Data models](#data-models)
 - [Screenshots](#screenshots)
+- [Deployment](#deployment)
 - [Security decisions](#security-decisions)
 - [Troubleshooting](#troubleshooting)
 - [What's next](#whats-next)
@@ -91,6 +93,7 @@ Developed on Node.js v24. **Node.js 18 or newer** is required.
 
 ```
 campusconnect/
+├── render.yaml                    # Render blueprint: rootDir, build/start commands, CORS origins
 ├── backend/
 │   ├── config/
 │   │   └── db.js                  # MongoDB connection
@@ -131,6 +134,7 @@ campusconnect/
     │   └── App.jsx                # route table
     ├── index.html
     ├── vite.config.js             # dev server + /api proxy
+    ├── vercel.json                # build settings + SPA rewrite for deep links
     └── package.json
 ```
 
@@ -346,6 +350,37 @@ _Drop images into a `screenshots/` folder at the repository root, then uncomment
 ![Dashboard showing the signed-in student's posts](screenshots/dashboard.png)
 -->
 
+## Deployment
+
+The two halves run on separate free tiers because they need different things: Express is a
+long-lived process, so it goes on Render; the Vite build is static files, so it goes on Vercel.
+
+| Piece | Host | Configured by |
+| --- | --- | --- |
+| `backend/` | Render — https://campusconnect-api-rhvm.onrender.com | [`render.yaml`](render.yaml) blueprint |
+| `frontend/` | Vercel — https://campusconnect-mu-one.vercel.app | [`frontend/vercel.json`](frontend/vercel.json) + project env |
+| Database | MongoDB Atlas M0 | `MONGO_URI` on Render |
+
+**How the two find each other.** `VITE_API_URL` is inlined into the JavaScript bundle at
+*build* time, so Vercel must know the API address before it builds. Render's `CLIENT_URL`
+then has to list the Vercel origin or the browser blocks every response. Both values are
+committed in `render.yaml` and the Vercel project settings, so neither is a guess.
+
+**No secrets are in this repository.** `render.yaml` declares `MONGO_URI` and `JWT_SECRET`
+with `sync: false`, which makes Render prompt for them once in its own dashboard. They are
+never stored in Git, and `backend/.env` stays gitignored.
+
+**Two things to expect on the free tier:**
+- Render idles the API after ~15 minutes without traffic. The next request takes 30–60 seconds
+  and the feed simply shows *Loading posts…* while it wakes. That is not a bug.
+- Atlas Network Access is set to `0.0.0.0/0` because Render's free instances have no static
+  egress IP. Access is then protected by the database credentials alone. Fine for a
+  demonstration cluster; replace it with specific IPs for anything holding real data.
+
+**Redeploying.** Pushing to `main` updates Render automatically through the blueprint. Vercel
+is currently deployed from the CLI, so a frontend change needs `npx vercel --prod` from
+`frontend/`. Running `vercel git connect` there switches Vercel to build on every push too.
+
 ## Security decisions
 
 - **Passwords are never stored or returned in plaintext.** A Mongoose `pre("save")` hook hashes with bcrypt at 10 salt rounds, and the schema marks `password` as `select: false` so it is excluded from queries unless explicitly requested.
@@ -369,18 +404,19 @@ _Drop images into a `screenshots/` folder at the repository root, then uncomment
 | Browser shows `ECONNREFUSED /api` | The backend is not running. Start it first — Vite proxies to port 5000. |
 | `Port already in use` | Change `PORT` in `backend/.env` **and** the proxy target in `frontend/vite.config.js`. |
 | Session lost after a while | The JWT has passed `JWT_EXPIRES`. Log in again, or raise the value. |
+| Live site hangs ~30–60 s, then works | Render put the free API to sleep. Load `/api/health` to wake it, or upgrade the plan. |
+| Live site logs `blocked by CORS policy` | The frontend origin is missing from Render's `CLIENT_URL`. Add it to `render.yaml` and let the blueprint sync. |
 
 ## What's next
 
 The MVP is complete and stable. Planned improvements, roughly in order of value:
 
 1. **Automated tests** — a Jest + Supertest suite covering the auth rules and the author-only `403` paths, which are the parts most likely to break during a refactor.
-2. **Deployment** — the API on Render or Railway, the frontend on Vercel or Netlify, with `CLIENT_URL` set to the live frontend origin.
-3. **Comments and reactions** so posts become two-way threads rather than notices.
-4. **Saved posts** and per-category notification preferences.
-5. **Image uploads** for lost & found, using a signed-upload service rather than the database.
-6. **Pagination** — the feed currently returns every matching post in one response, which is fine for one campus but should be cursor-paginated before it scales.
-7. **Roles** so that club coordinators and the placement cell can pin official announcements.
+2. **Comments and reactions** so posts become two-way threads rather than notices.
+3. **Saved posts** and per-category notification preferences.
+4. **Image uploads** for lost & found, using a signed-upload service rather than the database.
+5. **Pagination** — the feed currently returns every matching post in one response, which is fine for one campus but should be cursor-paginated before it scales.
+6. **Roles** so that club coordinators and the placement cell can pin official announcements.
 
 ---
 
