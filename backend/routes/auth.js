@@ -58,8 +58,16 @@ router.post(
   })
 );
 
+/* A returning student should not be signed out on a fixed timer. Once a token is
+   past half its lifetime, /me hands back a fresh one so an active session slides. */
+const RENEW_AT = 0.5;
+
 router.get("/me", protect, (req, res) => {
-  res.json({ user: publicUser(req.user) });
+  const body = { user: publicUser(req.user) };
+  const { iat, exp } = req.token;
+  const now = Math.floor(Date.now() / 1000);
+  if (exp - now < (exp - iat) * RENEW_AT) body.token = signToken(req.user._id);
+  res.json(body);
 });
 
 module.exports = router;

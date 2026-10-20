@@ -12,6 +12,7 @@ async function protect(req, res, next) {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(401).json({ message: "Account no longer exists" });
     req.user = user;
+    req.token = decoded;
     next();
   } catch {
     return res.status(401).json({ message: "Session expired, please log in again" });
