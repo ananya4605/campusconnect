@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<defs>
+<linearGradient id="ccBoard" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eaf1ff"/></linearGradient>
+<linearGradient id="ccArc" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#bfdbfe"/><stop offset="1" stop-color="#eff6ff"/></linearGradient>
+<linearGradient id="ccTile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e40af"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+</defs>
+<rect width="64" height="64" rx="15" fill="url(#ccTile)"/>
+<g transform="translate(6.3 8.44) scale(0.78)">
+<path d="M30.27 11.8Q32 11 33.73 11.8L56.27 22.2Q58 23 56.27 23.8L33.73 34.2Q32 35 30.27 34.2L7.73 23.8Q6 23 7.73 22.2Z" transform="translate(0 1.5)" fill="#bfdbfe"/><path d="M13 29.6L32 38.4L32 49.4L15.63 41.82Q13 40.6 13 37.7Z" fill="#dbeafe"/><path d="M32 38.4L51 29.6L51 37.7Q51 40.6 48.37 41.82L32 49.4Z" fill="#a9c9fb"/><path d="M30.27 11.8Q32 11 33.73 11.8L56.27 22.2Q58 23 56.27 23.8L33.73 34.2Q32 35 30.27 34.2L7.73 23.8Q6 23 7.73 22.2Z" fill="url(#ccBoard)"/><path d="M55.4 24.6v11.4" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round"/><path d="M52.6 35.4Q55.4 34 58.2 35.4L58.9 42.4Q59.3 45.4 55.4 45.4Q51.5 45.4 51.9 42.4Z" fill="#ffffff"/>
+</g>
+</svg>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api, errorMessage } from "../api/client";
 import CategoryFilter from "../components/CategoryFilter";
 import PostCard from "../components/PostCard";
@@ -6,9 +7,16 @@ import PostCard from "../components/PostCard";
 export default function Home() {
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
+  const [params, setParams] = useSearchParams();
+  const category = params.get("category") || "All";
+
+  function changeCategory(next) {
+    const updated = new URLSearchParams(params);
+    updated.set("category", next);
+    setParams(updated, { replace: true });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +58,18 @@ export default function Home() {
 
       <section className="toolbar">
         <div className="search">
-          <span aria-hidden="true">🔍</span>
+          <svg
+            className="search-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 4.5 4.5" />
+          </svg>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -63,7 +82,7 @@ export default function Home() {
             </button>
           )}
         </div>
-        <CategoryFilter value={category} onChange={setCategory} />
+        <CategoryFilter value={category} onChange={changeCategory} />
       </section>
 
       {status === "error" && <div className="alert">{error}</div>}
